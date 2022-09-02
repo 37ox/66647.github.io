@@ -1,0 +1,74 @@
+第946题 验证栈序列
+---
+
+<h3>题目描述：</h3>
+
+给定 pushed 和 popped 两个序列，每个序列中的 值都不重复，只有当它们可能是在最初空栈上进行的推入 push 和弹出 pop 操作序列的结果时，返回 true；否则，返回 false 。
+
+|Level|AC rate|
+|:---:|:---:|
+|Medium|66.5%|
+
+---
+
+<h3>题目解析：</h3>
+
+首先给出个人的一个解，我通过一个链表来模拟出栈入栈，我们先将一个数入栈，然后弹出栈的最后一个数，判断是否和popped的数相同（使用pos作为索引号查询），若相同，那么将pos加1即可，
+若不相同将该数重新压入栈内，并将下一个需要压入栈的数压入栈内，另i指向下一个需要被压入栈的数，直到已经没有数可以再压入栈内，并且栈内的最后一个数和popped数组pos所指的数值不同
+时，我们认为，不能够通过入栈出栈来达到想要的效果，代码如下：
+
+```
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        int len = pushed.length;
+        LinkedList<Integer> list = new LinkedList<Integer>();
+        int pos = 0;
+        int i = 1;
+        list.add(pushed[0]);
+        while(i<len||list.getLast()==popped[pos]){
+            if(list.size()==0){
+                list.add(pushed[i]);
+                continue;
+            }
+            int value = list.removeLast();
+            if(value!=popped[pos]){
+                list.add(value);
+                if(i<len)list.add(pushed[i]);
+            }else{
+                pos++;
+                if(pos==len)return true;
+                continue;
+            }
+            i++;
+        }
+        return false;
+    }
+}
+```
+
+执行用时：1 ms, 在所有 Java 提交中击败了95.71%的用户
+
+内存消耗：41.5 MB, 在所有 Java 提交中击败了8.03%的用户
+
+代码从原理来说还是非常好理解的，并且O(N)的时间复杂度在执行用时方面表现也很优秀，但使用了较多的额外空间。若使用pushed来当做栈，采用双指针即可避免使用额外的空间，但会导致输入参数
+的破坏，代码如下：
+
+```
+class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        int n = pushed.length, pos = 0;
+        for (int i = 0, j = 0; i < n; i++) {
+            pushed[pos++] = pushed[i];
+            while (pos > 0 && pushed[pos - 1] == popped[j]){
+                pos--;
+                j++;
+            } 
+        }
+        return pos == 0;
+    }
+}
+```
+
+执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+
+内存消耗：41.1 MB, 在所有 Java 提交中击败了55.51%的用户
